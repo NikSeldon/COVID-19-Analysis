@@ -1,0 +1,153 @@
+---
+title: "Data exploration Europe"
+author: "Nik Seldon"
+date: "23 3 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Phase of exponential growth in Europe
+
+#### Include R libraries
+```{r message=FALSE, warning=FALSE,echo=TRUE}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+```
+
+
+```{r message=FALSE, warning=FALSE,echo=FALSE}
+if(.Platform$OS.type == "windows") {
+     setwd("C:/Users/domin/OneDrive/covid/")} else {
+         setwd("~/OneDrive/covid/")}
+
+cwd<-getwd()
+```
+
+#### Getting Data
+
+COVID-19 ata provided by the Johns Hopkins University Center for Systems Science and Engineering (JHU CSSE), 
+and is taken from their Github repository[https://github.com/CSSEGISandData/COVID-19] https://github.com/CSSEGISandData/COVID-19), Novel Coronavirus (COVID-19) Cases.
+
+```{r message=FALSE, warning=FALSE,echo=TRUE}
+#URLS
+confirmedURL_JHU <-"https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv?accessType=DOWNLOAD"
+deathURL_JHU<-"https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv?accessType=DOWNLOAD"
+```
+
+```{r message=FALSE, warning=FALSE}
+#DOWNLOAD
+#select a Date
+dateDownloaded<-as.Date("2020-03-23")
+#dateDownloaded<-Sys.Date()%>%as.Date("%d-%m-%y")
+pathConfirmed<-paste(cwd,"/data/confirmedCases_",dateDownloaded,".csv",sep="")
+#pathDeath<-paste(cwd,"/data/deathsCases_",dateDownloaded,".csv",sep="")
+
+download.file(confirmedURL_JHU,destfile = pathConfirmed, method = "curl")
+#download.file(deathURL_JHU,destfile = pathDeath)
+```
+
+
+
+Here is the code used to aquire the data from JHU CSSE Github-repository
+
+```{r message=FALSE, warning=FALSE}
+#Read Saved File
+confirmedCases_JHU <- read_csv(pathConfirmed)%>%
+    as_tibble()%>%
+    rename(province = "Province/State", country_region = "Country/Region")%>% 
+    pivot_longer(-c(province, country_region, Lat, Long), names_to = "Date", values_to = "cumulative_cases") %>% 
+    mutate(Date=as.Date(mdy(Date)))%>%
+    select(-c( Lat, Long)) %>%
+    arrange(country_region)
+```
+
+We will start to examine confirmed COVID-19 incident cases for a selection of countries in europe.
+Here, is the code that creates the corresponding data frame. 
+```{r }
+confirmedCasesTmp<-as_tibble()    
+countries<-list("Italy", "Germany", "Switzerland", "Spain", "France", "Netherlands")
+confirmedCasesSelected<-as_tibble()
+
+for(i in seq_along(countries)){
+  confirmedCasesTmp<-confirmedCases_JHU%>%
+    filter(country_region == countries[i], province==countries[i] | is.na(province))%>%
+    mutate(incident_cases = c(0, diff(cumulative_cases)))
+  confirmedCasesSelected<-rbind(confirmedCasesSelected,confirmedCasesTmp)
+}
+
+```
+
+#### Daily incremental incident cases (Epidemic Curves)
+
+Let's look at the daily incremental incidence in Europe. 
+The curve, that is visualized as bar chart here is known as the epidemic curve and shows the new confirmed cases on a daily basis.  The distribution of incidences over time, provides an indication of where the outbreak is in its course. Is the number of new cases still increasing or has the outbreak already peaked? As the the outbreak spreads, the shape of the epi curve might show overlapping waves of cases or new subsequent outbreaks. Therefore it is hardly to estimate at this moment (2020-03-24) wether we see already a plateau in the curve, e.g. when we look at France or Germany. Such an stationary appearance of new cases could be expected as the result of the social distancing measures, that were intensified 1 week ago.
+
+```{r fig.height = 7, fig.width = 10, echo=FALSE}
+title<-paste("COVID-19 daily incident  confirmed cases\n data downloaded from Johns Hopkins University: ", dateDownloaded)
+caption<-"Source: Johns Hopkins CSSE Novel coronavirus COVID-19 (2019-nCoV)\n data repository: https://github.com/CSSEGISandData/COVID-19"
+
+ggplot(confirmedCasesSelected, aes(x = Date, y = incident_cases))+ 
+  geom_col(color="blue", alpha=0.5)+
+  #geom_line(color="blue",alpha=0.4, size=.3) + 
+  #geom_point(color="blue", alpha=0.5, size=2)+
+  facet_wrap(country_region ~ ., scale = "free_y")+
+  labs(y = "Daily incident confirmed cases", title = title, 
+       subtitle = "(Note: different y-axis scales)", caption = caption)+
+  theme(legend.position = "none", legend.title = element_blank())
+```
+
+
+#### Daily cumulative confirmed cases
+
+The plot of cumulative cases shows the exponential growth of incidences during the first period of an epidemic. This period can be described by the growth law $I(t)=I_0 * C^{(t/ \tau)}$, $I_0$ and $I(t)$ the initial number of infected people and the number after a certain amount of time t. contains the average number of people a infected person is exposed to each day $=E$, and the propability of each exposure becoming an infection $=p$, thus, $C=E*p$. And,  $\tau$ is a time constant - the time required for $I$ to increase by one factor of C.
+
+
+```{r fig.height = 7, fig.width = 10, echo=FALSE}
+title<-paste("COVID-19 daily cumulative confirmed cases\n data downloaded from Johns Hopkins University: ", dateDownloaded)
+ggplot(confirmedCasesSelected, aes(x = Date, y = cumulative_cases, colour=country_region))+ 
+  geom_line(color="blue", alpha=0.4, size=.3) + 
+  geom_point(color="blue", alpha=0.5, size=2)+
+  facet_wrap(country_region ~ ., scale = "free_y")+
+  labs(y = "Cumulative confirmed cases", title = title, 
+        caption = caption)+
+  theme(legend.position = "none", legend.title = element_blank())
+```
+
+#### Daily cumulative confirmed cases on a log-scale
+Using an equivalent form of equation, but with the exponential base $I(t)=I_0 * e^{(kt)}$ ($k=1/ \tau$ = frequency or groth constant) we can estimate k from the logarithmic plot of cumulative incidences annd the linear model  $ln(I(t))= b+k*t$. Finally the doubling time - the time it reqiures the number of infected has doubled -  can be calculated: $T_2 = ln2/k$. In the following figure, the model fit is shown as a red line. 
+The results (2020-03-23) are:
+
+```{r echo=FALSE, warning=FALSE}
+####FIT
+for(i in seq_along(countries)){
+fitdata<-filter(confirmedCasesSelected,country_region == countries[i], Date >= "2020-03-01")%>%
+  mutate(logCases=log(cumulative_cases))
+model<-lm(logCases ~ Date, data = fitdata)
+print(paste("Doubling Time",countries[i], ": " ,round(log(2)/coef(model)[2], 1), "days"))
+}
+
+```
+
+
+```{r fig.height = 7, fig.width = 10, echo=FALSE, warning=FALSE}
+ggplot(confirmedCasesSelected, aes(x = Date, y = cumulative_cases, colour=country_region))+ 
+  geom_line(color="blue", alpha=0.4, size=.3) + 
+  geom_point(color="blue", alpha=0.4, size=2)+
+  geom_smooth(data=filter(confirmedCasesSelected, Date >= "2020-03-01"), method = "lm",formula =y ~x, col="red")+
+  facet_wrap(country_region ~ .)+
+  labs(y = "Cumulative confirmed cases", title = title, 
+       subtitle = "", caption = caption) +
+  xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
+         as.Date('2020-04-01 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
+  scale_y_log10(limits = c(1,1e5))+
+  theme(legend.position = "none", legend.title = element_blank())
+```
+
+
+
+
