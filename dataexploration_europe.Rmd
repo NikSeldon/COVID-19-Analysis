@@ -65,4 +65,70 @@ if(.Platform$OS.type == "windows") {
 #download.file(confirmedURL_JHU,destfile = pathConfirmed, method = "curl")
 #download.file(deathURL_JHU,destfile = pathDeath)
 ```
+```{r message=FALSE, warning=FALSE}
+#Read Saved File
+confirmedCases_JHU <- read_csv(pathConfirmed)%>%
+    as_tibble()%>%
+    rename(province = "Province/State", country_region = "Country/Region")%>% 
+    pivot_longer(-c(province, country_region, Lat, Long), names_to = "Date", values_to = "cumulative_cases") %>% 
+    mutate(Date=as.Date(mdy(Date)))%>%
+    select(-c( Lat, Long)) %>%
+    arrange(country_region)
+
+confirmedCasesTmp<-as_tibble()    
+countries<-list("Italy", "Germany", "Switzerland", "Spain", "France", "Netherlands")
+confirmedCasesSelected<-as_tibble()
+
+for(i in seq_along(countries)){
+  confirmedCasesTmp<-confirmedCases_JHU%>%
+    filter(country_region == countries[i], province==countries[i] | is.na(province))%>%
+    mutate(incident_cases = c(0, diff(cumulative_cases)))
+  confirmedCasesSelected<-rbind(confirmedCasesSelected,confirmedCasesTmp)
+}
+```
+
+### Phase of Exponential Growth
+
+Currently, all countries in Europe are in the epidemic phase of were the increase of incidence can be described by a law of exponential growth. epidemiologist may write $I_d=I_0* C^d$, where $I_d, I_0$ are the number of infected people at day $d$ and the initial value of infected people. The factor $C$ contains the average number $E$ of people, an infected person is exposed to each day, and the propability $p$ of each exposure becoming an infection. The exponential growth can be slowed down, when $E$ and/or $p$ can be minimised. Instead of $C$, Physicists would use the exponential base $e$: $I_d=I_0 * e^{(k*d)}$. The logarithmic plot of cumulative incidences $ln(I_d/I_0)=k*d$ over yield a straight line, with the slope $k$. Finally the doubling time - the time it reqiures the number of infected has doubled -  can be calculated: $T_2 = ln2/k$. In the following figure, the model fit is shown as a red line. 
+
+```{r fig.height = 7, fig.width = 8, echo=FALSE, warning=FALSE}
+title<-paste("COVID-19 daily incident  confirmed cases\n data downloaded from Johns Hopkins University: ", dateDownloaded)
+caption<-"Source: Johns Hopkins CSSE Novel coronavirus COVID-19 (2019-nCoV)\n data repository: https://github.com/CSSEGISandData/COVID-19"
+ggplot(confirmedCasesSelected, aes(x = Date, y = cumulative_cases, colour=country_region))+ 
+  geom_line(color="blue", alpha=0.4, size=.3) + 
+  geom_point(color="blue", alpha=0.4, size=2)+
+    geom_smooth(data=filter(confirmedCasesSelected, Date >= "2020-03-01", Date <= "2020-03-15"), method = "lm",formula =y ~x, col="purple")+
+  geom_smooth(data=filter(confirmedCasesSelected, Date >= "2020-03-15",Date <= "2020-03-26"), method = "lm",formula =y ~x, col="red")+
+  facet_wrap(country_region ~ .)+
+  labs(y = "Cumulative confirmed cases", title = title, 
+       subtitle = "", caption = caption) +
+  xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
+         as.Date('2020-04-01 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
+  scale_y_log10(limits = c(1,1e5))+
+  theme(legend.position = "none", legend.title = element_blank())
+
+```
+
+I analysed two periods, the begining and the end of march, separately to show how the doubling time has changed over time. The observed increase in doubling time by approximately a factor of 2 might be considered as the result of the social distancing and quarantine measures, that were intensified in european countries around the 15. of March 2020.
+
+##### Doubling time beginning of March
+
+```{r echo=FALSE}
+#Beginning of March
+for(i in seq_along(countries)){
+fitdata<-filter(confirmedCasesSelected,country_region == countries[i], Date >= "2020-03-01", Date <= "2020-03-15")%>%
+  mutate(logCases=log(cumulative_cases))
+model<-lm(logCases ~ Date, data = fitdata)
+print(paste(countries[i], ": " ,round(log(2)/coef(model)[2],1), "days"))
+}
+```
+##### Doubling time at the end of March
+```{r echo=FALSE}
+for(i in seq_along(countries)){
+  fitdata<-filter(confirmedCasesSelected,country_region == countries[i], Date >= "2020-03-16", Date <= "2020-03-26")%>%
+    mutate(logCases=log(cumulative_cases))
+  model<-lm(logCases ~ Date, data = fitdata)
+  print(paste(countries[i], ": " ,round(log(2)/coef(model)[2],1), "days"))
+}
+```
 
