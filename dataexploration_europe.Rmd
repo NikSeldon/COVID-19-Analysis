@@ -16,36 +16,37 @@ knitr::opts_chunk$set(echo = TRUE)
 ## COVID-19-Analysis
 ### Phase of exponential growth in Europe
 
-#### Include R libraries
-```{r message=FALSE, warning=FALSE, echo=FALSE}
-library(dplyr)
-library(tidyverse)
-library(ggplot2)
-library(lubridate)
-```
-
 
 ```{r message=FALSE, warning=FALSE,echo=FALSE}
 if(.Platform$OS.type == "windows") {
      setwd("C:/Users/domin/OneDrive/covid/")} else {
          setwd("~/OneDrive/covid/")}
-
 cwd<-getwd()
 ```
 
 #### Getting Data
 
-COVID-19 ata provided by the Johns Hopkins University Center for Systems Science and Engineering (JHU CSSE), 
-<<<<<<< HEAD
-and is taken from their Github repository [https://github.com/CSSEGISandData/COVID-19](https://github.com/CSSEGISandData/COVID-19), Novel Coronavirus (COVID-19) Cases.
-=======
->>>>>>> f99660af69ba5a14d9b73516fa9de507d37d92d8
+The article is an exploration of COVID-19 data, which is provided by the Johns Hopkins University, Center for Systems Science and Engineering (JHU CSSE). A Github repository that contains daily updated data of  
 
-```{r message=FALSE, warning=FALSE, echo=FALSE}
+* confirmed incidence cases 
+* cases of death and 
+* recovered cases 
+
+is available at [https://github.com/CSSEGISandData/COVID-19](https://github.com/CSSEGISandData/COVID-19),
+
+#### Required Libraries
+```{r message=FALSE, warning=FALSE, echo=TRUE}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+```
+#### Download 
+```{r message=FALSE, warning=FALSE, echo=TRUE}
 #URLS
-github<-"https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/"
-confirmedURL_JHU <-paste(github,"csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv?accessType=DOWNLOAD", sep="")
-deathURL_JHU<-paste(github,"csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv?accessType=DOWNLOAD", sep="")
+github<-"https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/"
+confirmedURL_JHU <-paste(github,"time_series_covid19_confirmed_global.csv?accessType=DOWNLOAD", sep="")
+deathURL_JHU<-paste(github,"time_series_covid19_deaths_global.csv?accessType=DOWNLOAD", sep="")
 ```
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
@@ -63,10 +64,6 @@ if(.Platform$OS.type == "windows") {
     download.file(deathURL_JHU,destfile = pathDeath, method = "curl")
     #download.file(gitGermanyURL,destfile = pathGithubGermany, method = "curl")
     }
-
-
-#download.file(confirmedURL_JHU,destfile = pathConfirmed, method = "curl")
-#download.file(deathURL_JHU,destfile = pathDeath)
 ```
 
 ```{r echo=FALSE,message=FALSE, warning=FALSE}
