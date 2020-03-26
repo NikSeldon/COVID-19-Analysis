@@ -13,7 +13,7 @@ knit: (function(input_file, encoding) {
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-##COVID-19-Analysis
+## COVID-19-Analysis
 ### Phase of exponential growth in Europe
 
 #### Include R libraries
@@ -36,9 +36,9 @@ cwd<-getwd()
 #### Getting Data
 
 COVID-19 ata provided by the Johns Hopkins University Center for Systems Science and Engineering (JHU CSSE), 
-and is taken from their Github repository[https://github.com/CSSEGISandData/COVID-19] https://github.com/CSSEGISandData/COVID-19), Novel Coronavirus (COVID-19) Cases.
+and is taken from their Github repository [] (https://github.com/CSSEGISandData/COVID-19), Novel Coronavirus (COVID-19) Cases.
 
-```{r message=FALSE, warning=FALSE,echo=FALSE}
+```{r message=FALSE, warning=FALSE, echo=FALSE}
 #URLS
 github<-"https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/"
 confirmedURL_JHU <-paste(github,"csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv?accessType=DOWNLOAD", sep="")
@@ -65,6 +65,7 @@ if(.Platform$OS.type == "windows") {
 #download.file(confirmedURL_JHU,destfile = pathConfirmed, method = "curl")
 #download.file(deathURL_JHU,destfile = pathDeath)
 ```
+
 ```{r echo=FALSE,message=FALSE, warning=FALSE}
 #Read Saved File
 confirmedCases_JHU <- read_csv(pathConfirmed)%>%
@@ -89,7 +90,7 @@ for(i in seq_along(countries)){
 
 ### Phase of Exponential Growth
 
-Currently, all countries in Europe are in the epidemic phase of were the increase of incidence can be described by a law of exponential growth. epidemiologist may write $I_d=I_0* C^d$, where $I_d, I_0$ are the number of infected people at day $d$ and the initial value of infected people. The factor $C$ contains the average number $E$ of people, an infected person is exposed to each day, and the propability $p$ of each exposure becoming an infection. The exponential growth can be slowed down, when $E$ and/or $p$ can be minimised. Instead of $C$, Physicists would use the exponential base $e$: $I_d=I_0 * e^{(k*d)}$. The logarithmic plot of cumulative incidences $ln(I_d/I_0)=k*d$ over yield a straight line, with the slope $k$. Finally the doubling time - the time it reqiures the number of infected has doubled -  can be calculated: $T_2 = ln2/k$. In the following figure, the model fit is shown as a red line. 
+Currently, all countries in Europe are in the epidemic phase of were the increase of incidence can be described by a law of exponential growth. epidemiologist may write $I_d=I_0* C^d$, where $I_d, I_0$ are the number of infected people at day $d$ and the initial value of infected people. The factor $C$ contains the average number $E$ of people, an infected person is exposed to each day, and the propability $p$ of each exposure becoming an infection. The exponential growth can be slowed down, when $E$ and/or $p$ can be minimised. Instead of $C$, Physicists would use the exponential base $e$: $I_d=I_0 * e^{(k*d)}$. The logarithmic plot of cumulative incidences $ln(I_d/I_0)=k*d$ over yield a straight line, with the slope $k$. Finally the doubling time - the time it reqiures the number of infected has doubled -  can be calculated: $T_2 = ln2/k$. In the following figure, the model fit is shown as purple and red line, respectively. 
 
 ```{r fig.height = 7, fig.width = 8, echo=FALSE, warning=FALSE}
 title<-paste("COVID-19 daily incident  confirmed cases\n data downloaded from Johns Hopkins University: ", dateDownloaded)
