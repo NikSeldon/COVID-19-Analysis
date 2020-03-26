@@ -9,5 +9,5 @@ Currently, all countries in Europe are in the epidemic phase of were the increas
 
 ![](./img/log_cimmulative_cases_fit.png)
 
-I analysed the bigining and the anfd of march separately to show how the doubling time has changed over time. The observed increase in doubling time by approimately a factor of 2 might be considered as the result of the social distancing and quarantine measures, that were intensified around the 15. of March 2020.
+I analysed two periods, the begining and the end, of march separately to show how the doubling time has changed over time. The observed increase in doubling time by approimately a factor of 2 might be considered as the result of the social distancing and quarantine measures, that were intensified in european countries around the 15. of March 2020.
 
