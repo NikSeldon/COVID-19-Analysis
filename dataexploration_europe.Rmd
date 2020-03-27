@@ -16,7 +16,6 @@ knitr::opts_chunk$set(echo = TRUE)
 ## COVID-19-Analysis
 ### Phase of exponential growth in Europe
 
-
 ```{r message=FALSE, warning=FALSE,echo=FALSE}
 if(.Platform$OS.type == "windows") {
      setwd("C:/Users/domin/OneDrive/covid/")} else {
@@ -49,7 +48,7 @@ confirmedURL_JHU <-paste(github,"time_series_covid19_confirmed_global.csv?access
 deathURL_JHU<-paste(github,"time_series_covid19_deaths_global.csv?accessType=DOWNLOAD", sep="")
 ```
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=TRUE, message=FALSE, warning=FALSE}
 #DOWNLOAD
 dateDownloaded<-Sys.Date()%>%as.Date("%d-%m-%y")
 pathConfirmed<-paste(cwd,"/data/confirmedCases_",dateDownloaded,".csv",sep="")
@@ -66,7 +65,7 @@ if(.Platform$OS.type == "windows") {
     }
 ```
 
-```{r echo=FALSE,message=FALSE, warning=FALSE}
+```{r echo=TRUE,message=FALSE, warning=FALSE}
 #Read Saved File
 confirmedCases_JHU <- read_csv(pathConfirmed)%>%
     as_tibble()%>%
@@ -90,14 +89,11 @@ for(i in seq_along(countries)){
 
 ### Phase of Exponential Growth
 
-<<<<<<< HEAD
 Currently, all countries in Europe are in the epidemic phase of were the increase of incidence can be described by a law of exponential growth. epidemiologist may write $I_d=I_0* C^d$, where $I_d, I_0$ are the number of infected people at day $d$ and the initial value of infected people. The factor $C$ contains the average number $E$ of people, an infected person is exposed to each day, and the propability $p$ of each exposure becoming an infection. The exponential growth can be slowed down, when $E$ and/or $p$ can be minimised. Instead of $C$, Physicists would use the exponential base $e$: $I_d=I_0 * e^{(k*d)}$. The logarithmic plot of cumulative incidences $ln(I_d/I_0)=k*d$ yields a straight line, with the slope $k$. Finally the doubling time - the time it reqiures the number of infected people has doubled -  can be calculated: $T_2 = ln(2)/k$. In the following figure, the model fit is shown as purple and red line, respectively. 
-=======
-Currently, all countries in Europe are in the epidemic phase of were the increase of incidence can be described by a law of exponential growth. epidemiologist may write $I_d=I_0* C^d$, where $I_d, I_0$ are the number of infected people at day $d$ and the initial value of infected people. The factor $C$ contains the average number $E$ of people, an infected person is exposed to each day, and the propability $p$ of each exposure becoming an infection. The exponential growth can be slowed down, when $E$ and/or $p$ can be minimised. Instead of $C$, Physicists would use the exponential base $e$: $I_d=I_0 * e^{(k*d)}$. The logarithmic plot of cumulative incidences $ln(I_d/I_0)=k*d$ over yield a straight line, with the slope $k$. Finally the doubling time - the time it reqiures the number of infected has doubled -  can be calculated: $T_2 = ln2/k$. In the following figure, the model fit is shown as purple and red line, respectively. 
->>>>>>> f99660af69ba5a14d9b73516fa9de507d37d92d8
 
-```{r fig.height = 7, fig.width = 8, echo=FALSE, warning=FALSE}
-title<-paste("COVID-19 daily incident  confirmed cases\n data downloaded from Johns Hopkins University: ", dateDownloaded)
+
+```{r fig.height = 7, fig.width = 10, echo=TRUE, warning=FALSE}
+title<-paste("COVID-19 cummulative number of confirmed cases\n data downloaded from Johns Hopkins University: ", dateDownloaded)
 caption<-"Source: Johns Hopkins CSSE Novel coronavirus COVID-19 (2019-nCoV)\n data repository: https://github.com/CSSEGISandData/COVID-19"
 ggplot(confirmedCasesSelected, aes(x = Date, y = cumulative_cases, colour=country_region))+ 
   geom_line(color="blue", alpha=0.4, size=.3) + 
@@ -118,7 +114,7 @@ I analysed two periods, the begining and the end of march, separately to show ho
 
 ##### Doubling time beginning of March
 
-```{r echo=FALSE}
+```{r echo=TRUE}
 #Beginning of March
 for(i in seq_along(countries)){
 fitdata<-filter(confirmedCasesSelected,country_region == countries[i], Date >= "2020-03-01", Date <= "2020-03-15")%>%
@@ -128,7 +124,7 @@ print(paste(countries[i], ": " ,round(log(2)/coef(model)[2],1), "days"))
 }
 ```
 ##### Doubling time at the end of March
-```{r echo=FALSE}
+```{r echo=TRUE}
 for(i in seq_along(countries)){
   fitdata<-filter(confirmedCasesSelected,country_region == countries[i], Date >= "2020-03-16", Date <= "2020-03-26")%>%
     mutate(logCases=log(cumulative_cases))
@@ -137,3 +133,22 @@ for(i in seq_along(countries)){
 }
 ```
 
+#### Daily incremental incident cases (Epidemic Curves)
+
+Let's look at the daily incremental incidence. 
+The curve, that is visualized as bar chart here is known as the epidemic curve and shows the new confirmed cases on a daily basis.  The distribution of incidences over time, provides an indication of where the outbreak is in its course. Is the number of new cases still increasing or has the outbreak already peaked? As the the outbreak spreads, the shape of the epi curve might show overlapping waves of cases or new subsequent outbreaks. Therefore it is hardly to estimate at this moment if we see already a plateau in the curve of daily new incidences in some countries (e.g. Spain, Switzerland). Such stationary appearance of new cases could be expected as the result of the social distancing measures.
+
+
+```{r fig.height = 7, fig.width = 10, echo=TRUE}
+title<-paste("COVID-19 daily incident confirmed cases\n data downloaded from Johns Hopkins University: ", dateDownloaded)
+caption<-"Source: Johns Hopkins CSSE Novel coronavirus COVID-19 (2019-nCoV)\n data repository: https://github.com/CSSEGISandData/COVID-19"
+
+ggplot(confirmedCasesSelected, aes(x = Date, y = incident_cases))+ 
+  geom_col(color="blue", alpha=0.5)+
+  #geom_line(color="blue",alpha=0.4, size=.3) + 
+  #geom_point(color="blue", alpha=0.5, size=2)+
+  facet_wrap(country_region ~ ., scale = "free_y")+
+  labs(y = "Daily incident confirmed cases", title = title, 
+       subtitle = "(Note: different y-axis scales)", caption = caption)+
+  theme(legend.position = "none", legend.title = element_blank())
+```
