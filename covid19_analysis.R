@@ -33,11 +33,11 @@ pathDeath<-paste(cwd,"/data/deathsCases_",dateDownloaded,".csv",sep="")
 
 if(.Platform$OS.type == "windows") {
   download.file(confirmedURL_JHU,destfile = pathConfirmed)
-  download.file(deathURL_JHU,destfile = pathDeath)
+  #download.file(deathURL_JHU,destfile = pathDeath)
   #download.file(gitGermanyURL,destfile = pathGithubGermany)
   } else { 
     download.file(confirmedURL_JHU,destfile = pathConfirmed, method = "curl")
-    download.file(deathURL_JHU,destfile = pathDeath, method = "curl")
+    #download.file(deathURL_JHU,destfile = pathDeath, method = "curl")
     #download.file(gitGermanyURL,destfile = pathGithubGermany, method = "curl")
     }
 
@@ -52,8 +52,8 @@ confirmedCases_JHU <- read_csv(pathConfirmed)%>%
     arrange(country_region)
 
 confirmedCasesTmp<-as_tibble()    
-countries<-as_tibble(list("Italy", "Germany", "Switzerland", "Spain", "France", "Netherlands"))
-countries<-order(countries)
+countries<-list("Italy", "Germany", "Switzerland", "Spain", "France", "Netherlands")
+#countries<-order(countries)
 confirmedCasesSelected<-as_tibble()
 
 for(i in seq_along(countries)){
