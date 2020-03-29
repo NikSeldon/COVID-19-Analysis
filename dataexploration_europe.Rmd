@@ -99,7 +99,7 @@ ggplot(confirmedCasesSelected, aes(x = Date, y = cumulative_cases, colour=countr
   geom_line(color="blue", alpha=0.4, size=.3) + 
   geom_point(color="blue", alpha=0.4, size=2)+
     geom_smooth(data=filter(confirmedCasesSelected, Date >= "2020-03-01", Date <= "2020-03-15"), method = "lm",formula =y ~x, col="purple")+
-  geom_smooth(data=filter(confirmedCasesSelected, Date >= "2020-03-15",Date <= "2020-03-26"), method = "lm",formula =y ~x, col="red")+
+  geom_smooth(data=filter(confirmedCasesSelected, Date >= "2020-03-15",Date <= dateDownloaded), method = "lm",formula =y ~x, col="red")+
   facet_wrap(country_region ~ .)+
   labs(y = "Cumulative confirmed cases", title = title, 
        subtitle = "", caption = caption) +
@@ -126,7 +126,7 @@ print(paste(countries[i], ": " ,round(log(2)/coef(model)[2],1), "days"))
 ##### Doubling time at the end of March
 ```{r echo=TRUE}
 for(i in seq_along(countries)){
-  fitdata<-filter(confirmedCasesSelected,country_region == countries[i], Date >= "2020-03-16", Date <= "2020-03-26")%>%
+  fitdata<-filter(confirmedCasesSelected,country_region == countries[i], Date >= "2020-03-16", Date <= dateDownloaded)%>%
     mutate(logCases=log(cumulative_cases))
   model<-lm(logCases ~ Date, data = fitdata)
   print(paste(countries[i], ": " ,round(log(2)/coef(model)[2],1), "days"))
