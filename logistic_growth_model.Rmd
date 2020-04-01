@@ -1,0 +1,145 @@
+---
+title: "Logistic Growth Model"
+author: "Nik Seldon"
+date: "4/1/2020"
+output: html_document
+---
+
+### Deviation from Exponential Growth
+
+In the previous analysis [previous analysis]((https://nikseldon.github.io/COVID-19-Analysis/)) an exponential law of growth is used to describe the dynamik of COVID-19 outbreak in europe. This is an approximation that can be used in the case of an unlimited growth. One limitation for the growth of an outbreak is the fact that, as there are more and more people get infected, they become immune and can't be infected anymore. Thus the incremental number of daily new cases is decreasing. It is expected that for COVID-19 the spread stopps or decreases substantial, when a fraction $(1-1/R_0)$ of population is/was infected. R_0 =2...3 denotes the basic reproduction number. We can assume that we are still far away from the point where around 60% of the population is infected, even though an increasing amount of infected people can not be tested as the desease is spreading further. 
+Thus, if we observe this deviation from an exponential growth these days, the reasons might be 
+
+* measures of social distancing and quarantine
+* an capacity limit in testing people, that results in a increasing discrepancy between the true number of infected people and the confirmed cases.
+
+The following figure shows the cumulative number of confirmed cases and the deviation from an exponential growth for Germany:
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE,echo=FALSE}
+if(.Platform$OS.type == "windows") {
+     setwd("C:/Users/domin/OneDrive/covid/")} else {
+         setwd("~/OneDrive/covid/")}
+cwd<-getwd()
+```
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+github<-"https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/"
+confirmedURL_JHU <-paste(github,"time_series_covid19_confirmed_global.csv?accessType=DOWNLOAD", sep="")
+```
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+#DOWNLOAD
+dateDownloaded<-Sys.Date()%>%as.Date("%d-%m-%y")
+pathConfirmed<-paste(cwd,"/data/confirmedCases_",dateDownloaded,".csv",sep="")
+
+
+if(.Platform$OS.type == "windows") {
+  download.file(confirmedURL_JHU,destfile = pathConfirmed)
+
+  } else { 
+    download.file(confirmedURL_JHU,destfile = pathConfirmed, method = "curl")
+    }
+```
+
+```{r warning=FALSE, echo=FALSE, message=FALSE}
+confirmedCases_JHU <- read_csv(pathConfirmed)%>%
+    as_tibble()%>%
+    rename(province = "Province/State", country_region = "Country/Region")%>% 
+    pivot_longer(-c(province, country_region, Lat, Long), names_to = "Date", values_to = "cumulative_cases") %>% 
+    mutate(Date=as.Date(mdy(Date)))%>%
+    select(-c( Lat, Long)) %>%
+    arrange(country_region)
+```
+
+
+
+
+```{r echo=FALSE}
+fitGER<-filter(confirmedCases_JHU, country_region == "Germany", Date>="2020-03-01")%>%
+  mutate(time=Date-ymd("2020-03-01"))%>%
+  mutate(exponential=130*exp(0.25*as.numeric(time)))
+```
+
+```{r echo=FALSE}
+title<-paste("COVID-19 daily cumulative confirmed cases for Germany \n data downloaded from Johns Hopkins University: ", dateDownloaded)
+ggplot()+
+  geom_point(data=fitGER, aes(x=Date, y=cumulative_cases, color="cummulative cases Ger"))+
+  geom_point(data=fitGER, aes(x=Date, y=exponential, color="exponential law"),pch=1 )+
+  labs(x="Date", y= "cummulative cases")+
+    labs(x = "2020", title = title,
+         y = "confirmed cases",
+         color = "") +
+    scale_color_manual(values = c("cummulative cases Ger"="blue", "exponential law"="red"))+
+  theme(legend.position = "top", legend.title = element_blank())
+ 
+
+
+
+```
+
+
+### Applying  the Logistic Growth Model (Gompertz function)
+
+We can account of a limited growth by applying a logistic growth model. Here the growth is being slowest at the onset and at the end of the epidemic. 
+
+### NLS FIT
+An nonlinear model is used to fit the observed data
+
+
+```{r}
+#initial value
+W0<-130
+#estimate for Wmax:
+mu<-0.25
+d=50
+Wmax=W0+exp(0.25*d)
+#Gompertz function
+f<-function(t,Wmax,k){W0*exp(log(Wmax/W0)*(1-exp(-k*t)))}
+mydata<-list(t=as.numeric(fitGER$time), y=fitGER$cumulative_cases)
+pstart<-list(Wmax=Wmax,k=0.044)
+aFit<-nls(y~f(t,Wmax,k), data=mydata, start=pstart, trace=TRUE)
+summary(aFit)
+```
+
+### Prediction
+```{r}
+times<-seq(0,60,1)
+predGER<-predict(aFit, list(t=times))
+predGER<-tibble(time=times, cumulative_cases=predGER)%>%
+  mutate(date=time+ymd("2020-03-01"))%>%
+  filter(date<="2020-04-20")
+```
+
+#### normal Plot
+```{r}
+ggplot()+ 
+  geom_point(data=fitGER, aes(x = Date, y = cumulative_cases), pch=21, col="blue", cex=2)+
+  geom_point(data=predGER, aes(x=date, y=cumulative_cases), col="red", pch=3, cex=.5)+
+  labs(y = "Cumulative confirmed cases") +
+  xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
+         as.Date('2020-04-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
+  theme(legend.position = "top", legend.title = element_blank())
+```
+
+#### log y  Plot
+
+```{r message=FALSE, warning=FALSE, }
+ggplot()+ 
+  geom_point(data=fitGER, aes(x = Date, y = cumulative_cases), pch=21, col="blue", cex=2)+
+  geom_point(data=predGER, aes(x=date, y=cumulative_cases), col="red", pch=3, cex=.5)+
+  labs(y = "Cumulative confirmed cases") +
+  xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
+         as.Date('2020-04-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
+  scale_y_log10(limits = c(1,2.5e5))+
+  theme(legend.position = "top", legend.title = element_blank())
+```
+
