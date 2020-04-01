@@ -3,6 +3,11 @@ title: "Logistic Growth Model"
 author: "Nik Seldon"
 date: "4/1/2020"
 output: html_document
+knit: (function(input_file, encoding) {
+  out_dir <- 'docs';
+  rmarkdown::render(input_file,
+ encoding=encoding,
+ output_file=file.path(dirname(input_file), out_dir, 'logistic_growth_model.html'))})
 ---
 
 ### Deviation from Exponential Growth
@@ -11,7 +16,7 @@ In the previous analysis [previous analysis]((https://nikseldon.github.io/COVID-
 Thus, if we observe this deviation from an exponential growth these days, the reasons might be 
 
 * measures of social distancing and quarantine
-* an capacity limit in testing people, that results in a increasing discrepancy between the true number of infected people and the confirmed cases.
+* a capacity limit in testing people, that results in a increasing discrepancy between the true number of infected people and the confirmed cases.
 
 The following figure shows the cumulative number of confirmed cases and the deviation from an exponential growth for Germany:
 
