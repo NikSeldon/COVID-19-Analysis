@@ -66,13 +66,13 @@ confirmedCases_JHU <- read_csv(pathConfirmed)%>%
 ```
 
 
-
-
 ```{r echo=FALSE}
-fitGER<-filter(confirmedCases_JHU, country_region == "Germany", Date>="2020-03-01")%>%
-  mutate(time=Date-ymd("2020-03-01"))%>%
-  mutate(exponential=130*exp(0.25*as.numeric(time)))%>%
+dataGER<-confirmedCases_JHU%>%filter(country_region=="Germany",Date>="2020-03-01")%>%
   mutate(incident_cases = c(0, diff(cumulative_cases)))
+fitGER<-filter(confirmedCases_JHU, country_region == "Germany", Date>="2020-03-01",Date<="2020-04-30")%>%
+  mutate(time=Date-ymd("2020-03-01"))%>%
+  mutate(incident_cases = c(0, diff(cumulative_cases)))%>%
+  mutate(exponential=130*exp(0.25*as.numeric(time)))
 ```
 
 ```{r echo=FALSE}
@@ -89,38 +89,42 @@ ggplot()+
 ```
 
 
-### Applying  the Logistic Growth Model (Gompertz-function)
+### Applying the Logistic Growth Model (Gompertz-function)
 
-We can account of a limited growth by applying a logistic growth model. Here the growth is being slowest at the onset and at the end of the epidemic. It is considered in the model, that the number of infections approaches a maximum value (Nmax) and that the growth rate $mu$ decreases as N increases .
+We can account of a limited growth by applying a logistic growth model. Here the growth is being slowest at the onset and at the end of the epidemic. It is considered in the model, that the number of infections approaches a maximum value ($N_{max}$) and that the growth rate $\mu$ decreases as N increases.
 
-mu0<-k*log(Wmax/W0)
-W0*exp(mu0/k*(1-exp(-k*times))
+We than have two differential equations:
 
-* $N=N_0*e^{ln(N_{max}/N_0)*(1-e^{-kt})}$ 
+* $d\mu/dt=-k\mu$
+* $dN/dt=\mu N$
+with an analytical Solution (Gompertz-equation): 
+
+* $N=N_0*e^{\mu_0/k*(1-e^{-kt})}$ , where $\mu_0=k*ln(N_{max}/N_0)$ is the initial growth rate
 
 
 ### Nonlinear Least Square (NLS) FIT
 
-A NLS model is used to determine the parameters $N_{max}$ and $k$, the maximum number of infections and growth rate. 
+A NLS model is used to determine the parameters $N_{max}$ and $k$, the maximum number of infections and the growth rate. 
 
-```{r}
+```{r }
 #initial value
 N0<-130
 #estimate for Nmax:
 mu<-0.25
 d=50
 Nmax=N0+exp(0.25*d)
+k<-0.5
 #Gompertz function
 f<-function(t,Nmax,k){N0*exp(log(Nmax/N0)*(1-exp(-k*t)))}
 mydata<-list(t=as.numeric(fitGER$time), y=fitGER$cumulative_cases)
-pstart<-list(Nmax=Nmax,k=0.044)
+pstart<-list(Nmax=Nmax,k=k)
 aFitGER<-nls(y~f(t,Nmax,k), data=mydata, start=pstart, trace=TRUE)
 summary(aFitGER)
 ```
 
 ### Prediction
 ```{r}
-times<-seq(0,160,1)
+times<-seq(0,90,1)
 country<-"Germany"
 predGER<-predict(aFitGER, list(t=times))
 predGER<-tibble(time=times, cumulative_cases=predGER)%>%
@@ -129,10 +133,10 @@ predGER<-tibble(time=times, cumulative_cases=predGER)%>%
 ```
 
 #### Plots
-```{r warning=FALSE, message=FALSE}
+```{r warning=FALSE, message=FALSE, echo=FALSE}
 require(gridExtra)
 p1<-ggplot()+ 
-  geom_point(data=fitGER, aes(x = Date, y = cumulative_cases, color="Cumulative Cases"), pch=21, cex=2)+
+  geom_point(data=dataGER, aes(x = Date, y = cumulative_cases, color="Cumulative Cases"), pch=21, cex=2)+
   geom_point(data=predGER, aes(x=date, y=cumulative_cases, color="Gompertz-function"), pch=3, cex=.5)+
   labs(y = "Cumulative confirmed cases", title =country, subtitle = "normal plot") +
   xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
@@ -141,7 +145,7 @@ p1<-ggplot()+
   theme(legend.position = "top", legend.title = element_blank())
 
 p2<-ggplot()+ 
-  geom_point(data=fitGER, aes(x = Date, y = cumulative_cases, color="Cumulative Cases"), pch=21, cex=2)+
+  geom_point(data=dataGER, aes(x = Date, y = cumulative_cases, color="Cumulative Cases"), pch=21, cex=2)+
   geom_point(data=predGER, aes(x=date, y=cumulative_cases, color="Gompertz-function"), pch=3, cex=.5)+
   labs(y = "Cumulative confirmed cases",title =" ", subtitle = "log-y plot") +
   scale_color_manual(values = c("Cumulative Cases"="blue", "Gompertz-function"="red"))+
@@ -156,7 +160,7 @@ grid.arrange(p1,p2,ncol=2)
 
 ```{r echo=FALSE}
 ggplot()+ 
-  geom_col(data=fitGER, aes(x = Date, y = incident_cases, color="Incident Cases"), alpha=0.5)+
+  geom_col(data=dataGER, aes(x = Date, y = incident_cases, color="Incident Cases"), alpha=0.5)+
   geom_point(data=predGER, aes(x=date, y=incident_cases, color="Gompertz-function"), pch=3, cex=.5)+
   labs(y = "Cumulative confirmed cases", title ="Germany", subtitle = "normal plot") +
   xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
@@ -169,7 +173,9 @@ ggplot()+
 ### Switzerland
 
 ```{r echo=FALSE}
-fitCH<-filter(confirmedCases_JHU, country_region == "Switzerland", Date>="2020-03-01")%>%
+dataCH<-confirmedCases_JHU%>%filter(country_region=="Switzerland",Date>="2020-03-01")%>%
+  mutate(incident_cases = c(0, diff(cumulative_cases)))
+fitCH<-filter(confirmedCases_JHU, country_region == "Switzerland", Date>="2020-03-01",Date<="2020-04-30")%>%
   mutate(time=Date-ymd("2020-03-01"))%>%
   mutate(incident_cases = c(0, diff(cumulative_cases)))
 #initial values
@@ -186,17 +192,17 @@ summary(aFitCH)
 ```
 
 ```{r}
-times<-seq(0,160,1)
+times<-seq(0,90,1)
 predCH<-predict(aFitCH, list(t=times))
 predCH<-tibble(time=times, cumulative_cases=predCH)%>%
   mutate(date=time+ymd("2020-03-01"))%>%
   mutate(incident_cases = c(0, diff(cumulative_cases)))
 ```
 
-```{r warning=FALSE, message=FALSE, fig.width=4}
+```{r warning=FALSE, message=FALSE}
 require(gridExtra)
 p1<-ggplot()+ 
-  geom_point(data=fitCH, aes(x = Date, y = cumulative_cases, color="Cumulative Cases"), pch=21, cex=2)+
+  geom_point(data=dataCH, aes(x = Date, y = cumulative_cases, color="Cumulative Cases"), pch=21, cex=2)+
   geom_point(data=predCH, aes(x=date, y=cumulative_cases, color="Gompertz-function"), pch=3, cex=.5)+
   labs(y = "Cumulative confirmed cases", title ="Switzerland", subtitle = "normal plot") +
   xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
@@ -205,7 +211,7 @@ p1<-ggplot()+
   theme(legend.position = "top", legend.title = element_blank())
 
 p2<-ggplot()+ 
-  geom_point(data=fitCH, aes(x = Date, y = cumulative_cases, color="Cumulative Cases"), pch=21, cex=2)+
+  geom_point(data=dataCH, aes(x = Date, y = cumulative_cases, color="Cumulative Cases"), pch=21, cex=2)+
   geom_point(data=predCH, aes(x=date, y=cumulative_cases, color="Gompertz-function"), pch=3, cex=.5)+
   labs(y = "Cumulative confirmed cases",title =" ", subtitle = "log-y plot") +
   scale_color_manual(values = c("Cumulative Cases"="blue", "Gompertz-function"="red"))+
@@ -218,9 +224,9 @@ grid.arrange(p1,p2,ncol=2)
 ```
 
 
-```{r}
+```{r echo=FALSE}
 ggplot()+ 
-  geom_col(data=fitCH, aes(x = Date, y = incident_cases, color="Incident Cases"), alpha=0.5)+
+  geom_col(data=dataCH, aes(x = Date, y = incident_cases, color="Incident Cases"), alpha=0.5)+
   geom_point(data=predCH, aes(x=date, y=incident_cases, color="Gompertz-function"), pch=3, cex=.5)+
   labs(y = "Cumulative confirmed cases", title ="Switzerland", subtitle = "normal plot") +
   xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
