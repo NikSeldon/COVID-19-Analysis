@@ -133,7 +133,7 @@ predGER<-tibble(time=times, cumulative_cases=predGER)%>%
 ```
 
 #### Plots
-```{r warning=FALSE, message=FALSE, echo=FALSE}
+```{r warning=FALSE, message=FALSE}
 require(gridExtra)
 p1<-ggplot()+ 
   geom_point(data=dataGER, aes(x = Date, y = cumulative_cases, color="Cumulative Cases"), pch=21, cex=2)+
@@ -150,7 +150,7 @@ p2<-ggplot()+
   labs(y = "Cumulative confirmed cases",title =" ", subtitle = "log-y plot") +
   scale_color_manual(values = c("Cumulative Cases"="blue", "Gompertz-function"="red"))+
   xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
-         as.Date('2020-06-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
+         as.Date('2020-05-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
   scale_y_log10(limits = c(100,6.5e5))+
   theme(legend.position = "top", legend.title = element_blank())
 
@@ -158,7 +158,7 @@ grid.arrange(p1,p2,ncol=2)
 ```
 
 
-```{r echo=FALSE}
+```{r}
 ggplot()+ 
   geom_col(data=dataGER, aes(x = Date, y = incident_cases, color="Incident Cases"), alpha=0.5)+
   geom_point(data=predGER, aes(x=date, y=incident_cases, color="Gompertz-function"), pch=3, cex=.5)+
@@ -199,7 +199,7 @@ predCH<-tibble(time=times, cumulative_cases=predCH)%>%
   mutate(incident_cases = c(0, diff(cumulative_cases)))
 ```
 
-```{r warning=FALSE, message=FALSE}
+```{r echo=FALSE, warning=FALSE, message=FALSE}
 require(gridExtra)
 p1<-ggplot()+ 
   geom_point(data=dataCH, aes(x = Date, y = cumulative_cases, color="Cumulative Cases"), pch=21, cex=2)+
@@ -216,7 +216,7 @@ p2<-ggplot()+
   labs(y = "Cumulative confirmed cases",title =" ", subtitle = "log-y plot") +
   scale_color_manual(values = c("Cumulative Cases"="blue", "Gompertz-function"="red"))+
   xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
-         as.Date('2020-06-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
+         as.Date('2020-05-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
   scale_y_log10(limits = c(10,6.5e4))+
   theme(legend.position = "top", legend.title = element_blank())
 
