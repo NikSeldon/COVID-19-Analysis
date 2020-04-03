@@ -150,7 +150,7 @@ p2<-ggplot()+
   labs(y = "Cumulative confirmed cases",title =" ", subtitle = "log-y plot") +
   scale_color_manual(values = c("Cumulative Cases"="blue", "Gompertz-function"="red"))+
   xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
-         as.Date('2020-06-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
+         as.Date('2020-05-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
   scale_y_log10(limits = c(100,6.5e5))+
   theme(legend.position = "top", legend.title = element_blank())
 
@@ -216,7 +216,7 @@ p2<-ggplot()+
   labs(y = "Cumulative confirmed cases",title =" ", subtitle = "log-y plot") +
   scale_color_manual(values = c("Cumulative Cases"="blue", "Gompertz-function"="red"))+
   xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
-         as.Date('2020-06-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
+         as.Date('2020-05-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
   scale_y_log10(limits = c(10,6.5e4))+
   theme(legend.position = "top", legend.title = element_blank())
 
