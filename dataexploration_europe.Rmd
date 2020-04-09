@@ -76,39 +76,87 @@ confirmedCases_JHU <- read_csv(pathConfirmed)%>%
     arrange(country_region)
 
 confirmedCasesTmp<-as_tibble()    
-countries<-list("Italy", "Germany", "Switzerland", "Spain", "France", "Netherlands")
+countries<-list("Italy", "Germany", "Switzerland", "Spain", "France", "Netherlands","Sweden","Austria", "Belgium" )
 confirmedCasesSelected<-as_tibble()
 
 for(i in seq_along(countries)){
   confirmedCasesTmp<-confirmedCases_JHU%>%
     filter(country_region == countries[i], province==countries[i] | is.na(province))%>%
-    mutate(incident_cases = c(0, diff(cumulative_cases)))
+    mutate(incident_cases = c(0, diff(cumulative_cases)))%>%
+    mutate(logCases=log(cumulative_cases))%>%
+    mutate(difflogCases=c(0,diff(logCases)))%>%
+    mutate(T2=round(log(2)/difflogCases))
   confirmedCasesSelected<-rbind(confirmedCasesSelected,confirmedCasesTmp)
 }
+
 ```
 
 ### Phase of Exponential Growth
+#### 02-15 to 03-31 2020
 
-Currently, all countries in Europe are in the epidemic phase of were the increase of incidence can be described by a law of exponential growth. epidemiologist may write $I_d=I_0* C^d$, where $I_d, I_0$ are the number of infected people at day $d$ and the initial value of infected people. The factor $C$ contains the average number $E$ of people, an infected person is exposed to each day, and the propability $p$ of each exposure becoming an infection. The exponential growth can be slowed down, when $E$ and/or $p$ can be minimised. Instead of $C$, Physicists would use the exponential base $e$: $I_d=I_0 * e^{(k*d)}$. The logarithmic plot of cumulative incidences $ln(I_d/I_0)=k*d$ yields a straight line, with the slope $k$. Finally the doubling time - the time it reqiures the number of infected people has doubled -  can be calculated: $T_2 = ln(2)/k$. In the following figure, the model fit is shown as purple and red line, respectively. 
+Currently, all countries in Europe are in the epidemic phase of were the increase of incidence can be described by a law of exponential growth. epidemiologist may write $I_d=I_0* C^d$, where $I_d, I_0$ are the number of infected people at day $d$ and the initial value of infected people. The factor $C$ contains the average number $E$ of people, an infected person is exposed to each day, and the propability $p$ of each exposure becoming an infection. The exponential growth can be slowed down, when $E$ and/or $p$ can be minimised. Instead of $C$, Physicists would use the exponential base $e$: $I_d=I_0 * e^{(k*d)}$. The logarithmic plot of cumulative incidences $ln(I_d/I_0)=k*d$ yields a straight line, with the slope $k$. Finally the doubling time - the time it reqiures the number of infected people has doubled -  can be calculated: $T_2 = ln(2)/k$. Results are presented below in the section "Doubling Times".
 
 
 ```{r fig.height = 7, fig.width = 10, echo=TRUE, warning=FALSE}
 title<-paste("COVID-19 cummulative number of confirmed cases\n data downloaded from Johns Hopkins University: ", dateDownloaded)
 caption<-"Source: Johns Hopkins CSSE Novel coronavirus COVID-19 (2019-nCoV)\n data repository: https://github.com/CSSEGISandData/COVID-19"
 ggplot(confirmedCasesSelected, aes(x = Date, y = cumulative_cases, colour=country_region))+ 
-  geom_line(color="blue", alpha=0.4, size=.3) + 
-  geom_point(color="blue", alpha=0.4, size=2)+
-    geom_smooth(data=filter(confirmedCasesSelected, Date >= "2020-03-01", Date <= "2020-03-15"), method = "lm",formula =y ~x, col="purple")+
-  geom_smooth(data=filter(confirmedCasesSelected, Date >= "2020-03-15",Date <= dateDownloaded), method = "lm",formula =y ~x, col="red")+
+  geom_line(color="blue", alpha=0.4, cex=1) + 
+  geom_point(color="blue", alpha=0.4, cex=2)+
+  #  geom_smooth(data=filter(confirmedCasesSelected, Date >= "2020-03-01", Date <= "2020-03-15"), method = "lm",formula =y ~x, col="purple")+
+  #geom_smooth(data=filter(confirmedCasesSelected, Date >= "2020-03-15",Date <= dateDownloaded), method = "lm",formula =y ~x, col="red")+
   facet_wrap(country_region ~ .)+
   labs(y = "Cumulative confirmed cases", title = title, 
        subtitle = "", caption = caption) +
   xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
          as.Date('2020-04-01 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
-  scale_y_log10(limits = c(1,1e5))+
+  scale_y_log10(limits = c(1,1.25e5))+
   theme(legend.position = "none", legend.title = element_blank())
 
 ```
+
+
+#### Daily incremental incident cases (Epidemic Curves)
+
+Let's look at the daily incremental incidence. 
+The curve, that is visualized as bar chart here is known as the epidemic curve and shows the new confirmed cases on a daily basis.  The distribution of incidences over time, provides an indication of where the outbreak is in its course. Is the number of new cases still increasing or has the outbreak already peaked? As the the outbreak spreads, the shape of the epi curve might show overlapping waves of cases or new subsequent outbreaks. Therefore it is hardly to estimate at this moment if we see already a plateau in the curve of daily new incidences in some countries (e.g. Spain, Switzerland). Such stationary appearance of new cases could be expected as the result of the social distancing measures.
+
+
+```{r fig.height = 7, fig.width = 10, echo=TRUE}
+title<-paste("COVID-19 daily incident confirmed cases\n data downloaded from Johns Hopkins University: ", dateDownloaded)
+caption<-"Source: Johns Hopkins CSSE Novel coronavirus COVID-19 (2019-nCoV)\n data repository: https://github.com/CSSEGISandData/COVID-19"
+
+ggplot(confirmedCasesSelected, aes(x = Date, y = incident_cases))+ 
+  geom_col(color="blue", alpha=0.5)+
+  #geom_line(color="blue",alpha=0.4, size=.3) + 
+  #geom_point(color="blue", alpha=0.5, size=2)+
+  facet_wrap(country_region ~ ., scale = "free_y")+
+  labs(y = "Daily incident confirmed cases", title = title, 
+       subtitle = "(Note: different y-axis scales)", caption = caption)+
+  theme(legend.position = "none", legend.title = element_blank())
+```
+
+
+### Doubling Times
+#### (Time it requires the amount of confirmed cases doubles)
+
+```{r fig.height = 7, fig.width = 10, echo=TRUE, warning=FALSE}
+title<-paste("COVID-19 cummulative number of confirmed cases\n data downloaded from Johns Hopkins University: ", dateDownloaded)
+caption<-"Source: Johns Hopkins CSSE Novel coronavirus COVID-19 (2019-nCoV)\n data repository: https://github.com/CSSEGISandData/COVID-19"
+
+ggplot(confirmedCasesSelected%>%filter(Date>="2020-03-17"), aes(x = Date, y = T2))+ 
+  geom_line(color="blue", alpha=0.4, cex=1) + 
+  geom_point(color="blue", alpha=0.4, size=3)+
+  #  geom_smooth(data=filter(confirmedCasesSelected, Date >= "2020-03-01", Date <= "2020-03-15"), method = "lm",formula =y ~x, col="purple")+
+  #geom_smooth(data=filter(confirmedCasesSelected, Date >= "2020-03-15",Date <= dateDownloaded), method = "lm",formula =y ~x, col="red")+
+  facet_wrap(country_region ~ .,scale = "free_y")+
+  labs(y = "Cumulative confirmed cases", title = title, 
+       subtitle = "", caption = caption) +
+  xlim(c(as.Date('2020-03-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
+         as.Date('2020-04-01 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
+  theme(legend.position = "none", legend.title = element_blank())
+```
+
 
 I analysed two periods, the begining and the end of march, separately to show how the doubling time has changed over time. The observed increase in doubling time by approximately a factor of 2 might be considered as the result of the social distancing and quarantine measures, that were intensified in european countries around the 15. of March 2020.
 
@@ -133,22 +181,4 @@ for(i in seq_along(countries)){
 }
 ```
 
-#### Daily incremental incident cases (Epidemic Curves)
 
-Let's look at the daily incremental incidence. 
-The curve, that is visualized as bar chart here is known as the epidemic curve and shows the new confirmed cases on a daily basis.  The distribution of incidences over time, provides an indication of where the outbreak is in its course. Is the number of new cases still increasing or has the outbreak already peaked? As the the outbreak spreads, the shape of the epi curve might show overlapping waves of cases or new subsequent outbreaks. Therefore it is hardly to estimate at this moment if we see already a plateau in the curve of daily new incidences in some countries (e.g. Spain, Switzerland). Such stationary appearance of new cases could be expected as the result of the social distancing measures.
-
-
-```{r fig.height = 7, fig.width = 10, echo=TRUE}
-title<-paste("COVID-19 daily incident confirmed cases\n data downloaded from Johns Hopkins University: ", dateDownloaded)
-caption<-"Source: Johns Hopkins CSSE Novel coronavirus COVID-19 (2019-nCoV)\n data repository: https://github.com/CSSEGISandData/COVID-19"
-
-ggplot(confirmedCasesSelected, aes(x = Date, y = incident_cases))+ 
-  geom_col(color="blue", alpha=0.5)+
-  #geom_line(color="blue",alpha=0.4, size=.3) + 
-  #geom_point(color="blue", alpha=0.5, size=2)+
-  facet_wrap(country_region ~ ., scale = "free_y")+
-  labs(y = "Daily incident confirmed cases", title = title, 
-       subtitle = "(Note: different y-axis scales)", caption = caption)+
-  theme(legend.position = "none", legend.title = element_blank())
-```

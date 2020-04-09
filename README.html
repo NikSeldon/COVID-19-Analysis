@@ -376,6 +376,38 @@ summary {
 <li>exponential growth <a href="https://nikseldon.github.io/COVID-19-Analysis/">https://nikseldon.github.io/COVID-19-Analysis/</a></li>
 <li>logistic growth model <a href="https://nikseldon.github.io/COVID-19-Analysis/logistic_growth_model.html">https://nikseldon.github.io/COVID-19-Analysis/logistic_growth_model.html</a></li>
 </ul>
+<p><code>{r setup, include=FALSE} knitr::opts_chunk$set(echo = TRUE)</code> ## COVID-19-Analysis ### Phase of exponential growth in Europe</p>
+<p><code>{r message=FALSE, warning=FALSE,echo=FALSE} if(.Platform$OS.type == &quot;windows&quot;) {      setwd(&quot;C:/Users/domin/OneDrive/covid/&quot;)} else {          setwd(&quot;~/OneDrive/covid/&quot;)} cwd&lt;-getwd()</code></p>
+<div id="getting-data" class="section level4">
+<h4>Getting Data</h4>
+<p>The article is an exploration of COVID-19 data, which is provided by the Johns Hopkins University, Center for Systems Science and Engineering (JHU CSSE). A Github repository that contains daily updated data of</p>
+<ul>
+<li>confirmed incidence cases</li>
+<li>cases of death and</li>
+<li>recovered cases</li>
+</ul>
+<p>is available at <a href="https://github.com/CSSEGISandData/COVID-19">https://github.com/CSSEGISandData/COVID-19</a>,</p>
+</div>
+<div id="required-libraries" class="section level4">
+<h4>Required Libraries</h4>
+<p><code>{r message=FALSE, warning=FALSE, echo=TRUE} library(dplyr) library(tidyverse) library(ggplot2) library(lubridate)</code> #### Download <code>{r message=FALSE, warning=FALSE, echo=TRUE} #URLS github&lt;-&quot;https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/&quot; confirmedURL_JHU &lt;-paste(github,&quot;time_series_covid19_confirmed_global.csv?accessType=DOWNLOAD&quot;, sep=&quot;&quot;) deathURL_JHU&lt;-paste(github,&quot;time_series_covid19_deaths_global.csv?accessType=DOWNLOAD&quot;, sep=&quot;&quot;)</code></p>
+<p>```{r echo=TRUE, message=FALSE, warning=FALSE} #DOWNLOAD dateDownloaded&lt;-Sys.Date()%&gt;%as.Date(“%d-%m-%y”) pathConfirmed&lt;-paste(cwd,“/data/confirmedCases_”,dateDownloaded,“.csv”,sep=&quot;“) pathDeath&lt;-paste(cwd,”/data/deathsCases_“,dateDownloaded,”.csv“,sep=”&quot;)</p>
+<p>if(.Platform$OS.type == “windows”) { download.file(confirmedURL_JHU,destfile = pathConfirmed) download.file(deathURL_JHU,destfile = pathDeath) #download.file(gitGermanyURL,destfile = pathGithubGermany) } else { download.file(confirmedURL_JHU,destfile = pathConfirmed, method = “curl”) download.file(deathURL_JHU,destfile = pathDeath, method = “curl”) #download.file(gitGermanyURL,destfile = pathGithubGermany, method = “curl”) } ```</p>
+<p>```{r echo=TRUE,message=FALSE, warning=FALSE} #Read Saved File confirmedCases_JHU &lt;- read_csv(pathConfirmed)%&gt;% as_tibble()%&gt;% rename(province = “Province/State”, country_region = “Country/Region”)%&gt;% pivot_longer(-c(province, country_region, Lat, Long), names_to = “Date”, values_to = “cumulative_cases”) %&gt;% mutate(Date=as.Date(mdy(Date)))%&gt;% select(-c( Lat, Long)) %&gt;% arrange(country_region)</p>
+<p>confirmedCasesTmp&lt;-as_tibble()<br />
+countries&lt;-list(“Italy”, “Germany”, “Switzerland”, “Spain”, “France”, “Netherlands”,“Sweden”,“Austria”, “Belgium” ) confirmedCasesSelected&lt;-as_tibble()</p>
+<p>for(i in seq_along(countries)){ confirmedCasesTmp&lt;-confirmedCases_JHU%&gt;% filter(country_region == countries[i], province==countries[i] | is.na(province))%&gt;% mutate(incident_cases = c(0, diff(cumulative_cases)))%&gt;% mutate(logCases=log(cumulative_cases))%&gt;% mutate(difflogCases=c(0,diff(logCases)))%&gt;% mutate(T2=round(log(2)/difflogCases)) confirmedCasesSelected&lt;-rbind(confirmedCasesSelected,confirmedCasesTmp) }</p>
+<p>```</p>
+</div>
+</div>
+<div id="phase-of-exponential-growth" class="section level3">
+<h3>Phase of Exponential Growth</h3>
+<div id="to-03-31-2020" class="section level4">
+<h4>02-15 to 03-31 2020</h4>
+<p>Currently, all countries in Europe are in the epidemic phase of were the increase of incidence can be described by a law of exponential growth. epidemiologist may write <span class="math inline">\(I_d=I_0* C^d\)</span>, where <span class="math inline">\(I_d, I_0\)</span> are the number of infected people at day <span class="math inline">\(d\)</span> and the initial value of infected people. The factor <span class="math inline">\(C\)</span> contains the average number <span class="math inline">\(E\)</span> of people, an infected person is exposed to each day, and the propability <span class="math inline">\(p\)</span> of each exposure becoming an infection. The exponential growth can be slowed down, when <span class="math inline">\(E\)</span> and/or <span class="math inline">\(p\)</span> can be minimised. Instead of <span class="math inline">\(C\)</span>, Physicists would use the exponential base <span class="math inline">\(e\)</span>: <span class="math inline">\(I_d=I_0 * e^{(k*d)}\)</span>. The logarithmic plot of cumulative incidences <span class="math inline">\(ln(I_d/I_0)=k*d\)</span> yields a straight line, with the slope <span class="math inline">\(k\)</span>. Finally the doubling time - the time it reqiures the number of infected people has doubled - can be calculated: <span class="math inline">\(T_2 = ln(2)/k\)</span>. Results are presented below in the section “Doubling Times”.</p>
+<p>```{r fig.height = 7, fig.width = 10, echo=TRUE, warning=FALSE} title&lt;-paste(“COVID-19 cummulative number of confirmed casesdata downloaded from Johns Hopkins University:”, dateDownloaded) caption&lt;-“Source: Johns Hopkins CSSE Novel coronavirus COVID-19 (2019-nCoV)data repository: <a href="https://github.com/CSSEGISandData/COVID-19" class="uri">https://github.com/CSSEGISandData/COVID-19</a>” ggplot(confirmedCasesSelected, aes(x = Date, y = cumulative_cases, colour=country_region))+ geom_line(color=“blue”, alpha=0.4, cex=1) + geom_point(color=“blue”, alpha=0.4, cex=2)+ # geom_smooth(data=filter(confirmedCasesSelected, Date &gt;= “2020-03-01”, Date &lt;= “2020-03-15”), method = “lm”,formula =y ~x, col=“purple”)+ #geom_smooth(data=filter(confirmedCasesSelected, Date &gt;= “2020-03-15”,Date &lt;= dateDownloaded), method = “lm”,formula =y ~x, col=“red”)+ facet_wrap(country_region ~ .)+ labs(y = “Cumulative confirmed cases”, title = title, subtitle = &quot;“, caption = caption) + xlim(c(as.Date(‘2020-02-15 00:00:00’, format =”%Y-%m-%d %H:%M:%S“), as.Date(‘2020-04-01 00:00:00’, format =”%Y-%m-%d %H:%M:%S“)))+ scale_y_log10(limits = c(1,1.25e5))+ theme(legend.position =”none&quot;, legend.title = element_blank())</p>
+<p>```</p>
+</div>
 </div>
 </div>
 
