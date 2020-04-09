@@ -16,6 +16,7 @@ In the previous analysis [previous analysis](https://nikseldon.github.io/COVID-1
 Thus, if we observe this deviation from an exponential growth these days, the reasons might be 
 
 * measures of social distancing and quarantine
+* clusters of infections in certain regions with higher fractions of infected person
 * a capacity limit in testing people, that results in a increasing discrepancy between the true number of infected people and the confirmed cases.
 
 The following figure shows the cumulative number of confirmed cases and the deviation from an exponential growth for Germany:
@@ -79,7 +80,7 @@ fitGER<-filter(confirmedCases_JHU, country_region == "Germany", Date>="2020-03-0
 title<-paste("COVID-19 daily cumulative confirmed cases for Germany \n data downloaded from Johns Hopkins University: ", dateDownloaded)
 ggplot()+
   geom_point(data=fitGER, aes(x=Date, y=cumulative_cases, color="cumulative cases Ger"))+
-  geom_point(data=fitGER, aes(x=Date, y=exponential, color="exponential law"),pch=1 )+
+  geom_point(data=fitGER%>%filter(Date<="2020-03-31"), aes(x=Date, y=exponential, color="exponential law"),pch=1 )+
   labs(x="Date", y= "cummulative cases")+
     labs(x = "2020", title = title,
          y = "confirmed cases",
@@ -162,7 +163,7 @@ grid.arrange(p1,p2,ncol=2)
 ggplot()+ 
   geom_col(data=dataGER, aes(x = Date, y = incident_cases, color="Incident Cases"), alpha=0.5)+
   geom_point(data=predGER, aes(x=date, y=incident_cases, color="Gompertz-function"), pch=3, cex=.5)+
-  labs(y = "Cumulative confirmed cases", title ="Germany", subtitle = "normal plot") +
+  labs(y = "Daily new incident cases", title ="Germany", subtitle = "Daily new cases and model") +
   xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
          as.Date('2020-05-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
   scale_color_manual(values = c("Incident Cases"="blue", "Gompertz-function"="red"))+
@@ -228,7 +229,7 @@ grid.arrange(p1,p2,ncol=2)
 ggplot()+ 
   geom_col(data=dataCH, aes(x = Date, y = incident_cases, color="Incident Cases"), alpha=0.5)+
   geom_point(data=predCH, aes(x=date, y=incident_cases, color="Gompertz-function"), pch=3, cex=.5)+
-  labs(y = "Cumulative confirmed cases", title ="Switzerland", subtitle = "normal plot") +
+  labs(y = "Daily new incident cases", title ="Switzerland", subtitle = "Daily new cases and model") +
   xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
          as.Date('2020-05-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
   scale_color_manual(values = c("Incident Cases"="blue", "Gompertz-function"="red"))+
