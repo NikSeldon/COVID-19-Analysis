@@ -141,14 +141,13 @@ ggplot(confirmedCasesSelected, aes(x = Date, y = incident_cases))+
 #### (Time it requires the amount of confirmed cases doubles)
 
 ```{r fig.height = 7, fig.width = 10, echo=TRUE, warning=FALSE}
-title<-paste("COVID-19 cummulative number of confirmed cases\n data downloaded from Johns Hopkins University: ", dateDownloaded)
+title<-paste("COVID-19 Doubling Times of Confirmed Cases \nData from:", dateDownloaded)
 caption<-"Source: Johns Hopkins CSSE Novel coronavirus COVID-19 (2019-nCoV)\n data repository: https://github.com/CSSEGISandData/COVID-19"
 
 ggplot(confirmedCasesSelected%>%filter(Date>="2020-03-17"), aes(x = Date, y = T2))+ 
   geom_line(color="blue", alpha=0.4, cex=1) + 
   geom_point(color="blue", alpha=0.4, size=3)+
-  #  geom_smooth(data=filter(confirmedCasesSelected, Date >= "2020-03-01", Date <= "2020-03-15"), method = "lm",formula =y ~x, col="purple")+
-  #geom_smooth(data=filter(confirmedCasesSelected, Date >= "2020-03-15",Date <= dateDownloaded), method = "lm",formula =y ~x, col="red")+
+  geom_smooth(data=confirmedCasesSelected%>%filter(Date>="2020-03-17"), method = "lm",formula =y ~x, col="purple")+
   facet_wrap(country_region ~ .)+
   labs(y = "Cumulative confirmed cases", title = title, 
        subtitle = "", caption = caption) +
@@ -159,7 +158,7 @@ ggplot(confirmedCasesSelected%>%filter(Date>="2020-03-17"), aes(x = Date, y = T2
 ```
 
 
-I analysed two periods, the begining and the end of march, separately to show how the doubling time has changed over time. The observed increase in doubling time by approximately a factor of 2 might be considered as the result of the social distancing and quarantine measures, that were intensified in european countries around the 15. of March 2020.
+I analysed two periods, the begining and the end of march, separately to show how the doubling time has changed over time. The observed increase in doubling time by approximately a factor of 2 might be considered as the result of the social distancing and quarantine measures, that were intensified in european countries around the 15th of March 2020.
 
 ##### Doubling time beginning of March
 
