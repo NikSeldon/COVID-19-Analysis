@@ -102,18 +102,22 @@ with an analytical Solution (Gompertz-equation):
 
 * $N=N_0*e^{\mu_0/k*(1-e^{-kt})}$ , where $\mu_0=k*ln(N_{max}/N_0)$ is the initial growth rate
 
+The Gompertz function is used here, as it represents a asymetrical version of the logistic growth model.
+The epidemic curve of a "point source outbreak" can be described by the log-normal-distribution, there is a rapid increase of cases and a rather slow decrease. The cummulative amount of cases then yields this asymmetrical growth - function. The model is an estimation as many others, it may estimate the near future of disease development with respect to the current conditions.    
+
+[https://en.wikipedia.org/wiki/Gompertz_function](https://en.wikipedia.org/wiki/Gompertz_function)
 
 ### Nonlinear Least Square (NLS) FIT
 
-A NLS model is used to determine the parameters $N_{max}$ and $k$, the maximum number of infections and the growth rate. 
+A NLS model is used to determine the parameters $N_{max}$ and $k$, the maximum number of infections and the growth rate, respectively. 
 
 ```{r }
 #initial value
-N0<-130
+N0<-fitGER$cumulative_cases[1]
 #estimate for Nmax:
 mu<-0.25
 d=50
-Nmax=N0+exp(0.25*d)
+Nmax=N0+exp(mu*d)
 k<-0.5
 #Gompertz function
 f<-function(t,Nmax,k){N0*exp(log(Nmax/N0)*(1-exp(-k*t)))}

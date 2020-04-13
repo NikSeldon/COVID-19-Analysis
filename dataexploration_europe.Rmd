@@ -119,7 +119,7 @@ ggplot(confirmedCasesSelected, aes(x = Date, y = cumulative_cases, colour=countr
 #### Daily incremental incident cases (Epidemic Curves)
 
 Let's look at the daily incremental incidence. 
-The curve, that is visualized as bar chart here is known as the epidemic curve and shows the new confirmed cases on a daily basis.  The distribution of incidences over time, provides an indication of where the outbreak is in its course. Is the number of new cases still increasing or has the outbreak already peaked? As the the outbreak spreads, the shape of the epi curve might show overlapping waves of cases or new subsequent outbreaks. Therefore it is hardly to estimate at this moment if we see already a plateau in the curve of daily new incidences in some countries (e.g. Spain, Switzerland). Such stationary appearance of new cases could be expected as the result of the social distancing measures.
+The curve, that is visualized as bar chart here is known as the epidemic curve and shows the new confirmed cases on a daily basis.  The distribution of incidences over time, provides an indication of where the outbreak is in its course. Is the number of new cases still increasing or has the outbreak already peaked? As the the outbreak spreads, the shape of the epi curve might show overlapping waves of cases or new subsequent outbreaks. A plateau in the curve of daily new incidences in some countries could be expected as the result of the social distancing measures that are introduced in european countries around the middle of March (starting from 16th to 20th of March).
 
 
 ```{r fig.height = 7, fig.width = 10, echo=TRUE}
@@ -139,6 +139,10 @@ ggplot(confirmedCasesSelected, aes(x = Date, y = incident_cases))+
 
 ### Doubling Times
 #### (Time it requires the amount of confirmed cases doubles)
+
+The following plot shows developments of doubling times for various countries in europe. Increasing doubling times meaning a significant slowing down of the spreading of disease and must be considered as a result of social distancing and quaratine measures. There is no other measure as e.g. vaccination at this time. Also the exponential growth is not slowed down by the increasing amount of already recovered people. This effect may play a role when >10%...20%...30% of the population have become immune.
+
+We can see, that e.g. for Austria and Switzerland the doubling times increase significantly, due to quarantine measures, whereas the increase is smaller in countries like Netherlands and France. In Sweden the spreading of disease even accelerates. ... of course, the total amount of tests, respectively the limits of testing  are not considered here.   
 
 ```{r fig.height = 7, fig.width = 10, echo=TRUE, warning=FALSE}
 title<-paste("COVID-19 Doubling Times of Confirmed Cases \nData from:", dateDownloaded)
