@@ -146,7 +146,7 @@ caption<-"Source: Johns Hopkins CSSE Novel coronavirus COVID-19 (2019-nCoV)\n da
 
 ggplot(confirmedCasesSelected%>%filter(Date>="2020-03-17"), aes(x = Date, y = T2))+ 
   geom_line(color="blue", alpha=0.4, cex=1) + 
-  geom_point(color="blue", alpha=0.4, size=3)+
+  geom_point(color="blue", alpha=0.4, cex=2)+
   geom_smooth(data=confirmedCasesSelected%>%filter(Date>="2020-03-17"), method = "lm",formula =y ~x, col="purple")+
   facet_wrap(country_region ~ .)+
   labs(y = "Cumulative confirmed cases", title = title, 
