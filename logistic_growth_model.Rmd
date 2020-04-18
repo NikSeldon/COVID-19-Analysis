@@ -77,7 +77,7 @@ fitGER<-filter(confirmedCases_JHU, country_region == "Germany", Date>="2020-03-0
 ```
 
 ```{r echo=FALSE}
-title<-paste("COVID-19 daily cumulative confirmed cases for Germany \n data downloaded from Johns Hopkins University: ", dateDownloaded)
+title<-paste("COVID-19 cumulative confirmed cases for Germany \n data downloaded from Johns Hopkins University: ", dateDownloaded)
 ggplot()+
   geom_point(data=fitGER, aes(x=Date, y=cumulative_cases, color="cumulative cases Ger"))+
   geom_point(data=fitGER%>%filter(Date<="2020-03-31"), aes(x=Date, y=exponential, color="exponential law"),pch=1 )+
@@ -139,11 +139,12 @@ predGER<-tibble(time=times, cumulative_cases=predGER)%>%
 
 #### Plots
 ```{r warning=FALSE, message=FALSE}
+title=paste(country, dateDownloaded)
 require(gridExtra)
 p1<-ggplot()+ 
   geom_point(data=dataGER, aes(x = Date, y = cumulative_cases, color="Cumulative Cases"), pch=21, cex=2)+
   geom_point(data=predGER, aes(x=date, y=cumulative_cases, color="Gompertz-function"), pch=3, cex=.5)+
-  labs(y = "Cumulative confirmed cases", title =country, subtitle = "normal plot") +
+  labs(y = "Cumulative confirmed cases", title =title, subtitle = "normal plot") +
   xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
          as.Date('2020-05-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
   scale_color_manual(values = c("Cumulative Cases"="blue", "Gompertz-function"="red"))+
@@ -152,7 +153,7 @@ p1<-ggplot()+
 p2<-ggplot()+ 
   geom_point(data=dataGER, aes(x = Date, y = cumulative_cases, color="Cumulative Cases"), pch=21, cex=2)+
   geom_point(data=predGER, aes(x=date, y=cumulative_cases, color="Gompertz-function"), pch=3, cex=.5)+
-  labs(y = "Cumulative confirmed cases",title =" ", subtitle = "log-y plot") +
+  labs(y = "Cumulative confirmed cases",title =" \n ", subtitle = "log-y plot") +
   scale_color_manual(values = c("Cumulative Cases"="blue", "Gompertz-function"="red"))+
   xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
          as.Date('2020-05-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
@@ -163,11 +164,12 @@ grid.arrange(p1,p2,ncol=2)
 ```
 
 
-```{r}
+```{r warning=FALSE}
+title=paste(country, dateDownloaded)
 ggplot()+ 
   geom_col(data=dataGER, aes(x = Date, y = incident_cases, color="Incident Cases"), alpha=0.5)+
   geom_point(data=predGER, aes(x=date, y=incident_cases, color="Gompertz-function"), pch=3, cex=.5)+
-  labs(y = "Daily new incident cases", title ="Germany", subtitle = "Daily new cases and model") +
+  labs(y = "Daily new incident cases", title =title, subtitle = "Daily new cases and model") +
   xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
          as.Date('2020-05-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
   scale_color_manual(values = c("Incident Cases"="blue", "Gompertz-function"="red"))+
@@ -178,7 +180,8 @@ ggplot()+
 ### Switzerland
 
 ```{r echo=FALSE, message=FALSE }
-dataCH<-confirmedCases_JHU%>%filter(country_region=="Switzerland",Date>="2020-03-01")%>%
+country<-"Switzerland"
+dataCH<-confirmedCases_JHU%>%filter(country_region==country,Date>="2020-03-01")%>%
   mutate(incident_cases = c(0, diff(cumulative_cases)))
 fitCH<-filter(confirmedCases_JHU, country_region == "Switzerland", Date>="2020-03-01",Date<="2020-04-30")%>%
   mutate(time=Date-ymd("2020-03-01"))%>%
@@ -206,10 +209,11 @@ predCH<-tibble(time=times, cumulative_cases=predCH)%>%
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 require(gridExtra)
+title=paste(country, dateDownloaded)
 p1<-ggplot()+ 
   geom_point(data=dataCH, aes(x = Date, y = cumulative_cases, color="Cumulative Cases"), pch=21, cex=2)+
   geom_point(data=predCH, aes(x=date, y=cumulative_cases, color="Gompertz-function"), pch=3, cex=.5)+
-  labs(y = "Cumulative confirmed cases", title ="Switzerland", subtitle = "normal plot") +
+  labs(y = "Cumulative confirmed cases", title =title, subtitle = "normal plot") +
   xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
          as.Date('2020-05-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
   scale_color_manual(values = c("Cumulative Cases"="blue", "Gompertz-function"="red"))+
@@ -229,11 +233,12 @@ grid.arrange(p1,p2,ncol=2)
 ```
 
 
-```{r echo=FALSE}
+```{r echo=FALSE, warning=FALSE}
+title=paste(country, dateDownloaded)
 ggplot()+ 
   geom_col(data=dataCH, aes(x = Date, y = incident_cases, color="Incident Cases"), alpha=0.5)+
   geom_point(data=predCH, aes(x=date, y=incident_cases, color="Gompertz-function"), pch=3, cex=.5)+
-  labs(y = "Daily new incident cases", title ="Switzerland", subtitle = "Daily new cases and model") +
+  labs(y = "Daily new incident cases", title =title, subtitle = "Daily new cases and model") +
   xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
          as.Date('2020-05-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
   scale_color_manual(values = c("Incident Cases"="blue", "Gompertz-function"="red"))+
