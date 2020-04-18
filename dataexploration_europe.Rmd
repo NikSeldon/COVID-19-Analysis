@@ -109,7 +109,7 @@ ggplot(confirmedCasesSelected, aes(x = Date, y = cumulative_cases, colour=countr
   labs(y = "Cumulative confirmed cases", title = title, 
        subtitle = "", caption = caption) +
   xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
-         as.Date('2020-04-01 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
+         as.Date('2020-04-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
   scale_y_log10(limits = c(1,1.25e5))+
   theme(legend.position = "none", legend.title = element_blank())
 
@@ -157,7 +157,11 @@ ggplot(confirmedCasesSelected%>%filter(Date>="2020-03-17"), aes(x = Date, y = T2
        subtitle = "", caption = caption) +
   xlim(c(as.Date('2020-03-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
          as.Date('2020-04-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
+<<<<<<< HEAD
   ylim(c(0,30))+
+=======
+  ylim(c(0,20))+
+>>>>>>> e652384f853ffec1a020b2e34c9f3f527d518515
   theme(legend.position = "none", legend.title = element_blank())
 ```
 
