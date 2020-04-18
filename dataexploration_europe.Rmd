@@ -123,7 +123,7 @@ The curve, that is visualized as bar chart here is known as the epidemic curve a
 
 
 ```{r fig.height = 7, fig.width = 10, echo=TRUE}
-title<-paste("COVID-19 daily incident confirmed cases\n data downloaded from Johns Hopkins University: ", dateDownloaded)
+title<-paste("COVID-19 daily incident confirmed cases\n data from Johns Hopkins University: ", dateDownloaded)
 caption<-"Source: Johns Hopkins CSSE Novel coronavirus COVID-19 (2019-nCoV)\n data repository: https://github.com/CSSEGISandData/COVID-19"
 
 ggplot(confirmedCasesSelected, aes(x = Date, y = incident_cases))+ 
@@ -156,8 +156,8 @@ ggplot(confirmedCasesSelected%>%filter(Date>="2020-03-17"), aes(x = Date, y = T2
   labs(y = "Cumulative confirmed cases", title = title, 
        subtitle = "", caption = caption) +
   xlim(c(as.Date('2020-03-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
-         as.Date('2020-04-01 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
-  ylim(c(0,20))+
+         as.Date('2020-04-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
+  ylim(c(0,30))+
   theme(legend.position = "none", legend.title = element_blank())
 ```
 
