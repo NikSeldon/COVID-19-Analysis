@@ -165,21 +165,11 @@ grid.arrange(p1,p2,ncol=2)
 
 
 ```{r warning=FALSE}
-<<<<<<< HEAD
 title<-paste(country, dateDownloaded)
-subtitle<-"Daily new cases and model, conditions - quarantine "
 ggplot()+ 
   geom_col(data=dataGER, aes(x = Date, y = incident_cases, color="Incident Cases"), alpha=0.5)+
   geom_point(data=predGER, aes(x=date, y=incident_cases, color="Gompertz-function"), pch=3, cex=.5)+
-  labs(y = "Daily new incident cases", title =title, subtitle = subtitle) +
-=======
-title=paste(country, dateDownloaded)
-ggplot()+ 
-  geom_col(data=dataGER, aes(x = Date, y = incident_cases, color="Incident Cases"), alpha=0.5)+
-  geom_point(data=predGER, aes(x=date, y=incident_cases, color="Gompertz-function"), pch=3, cex=.5)+
-  labs(y = "Daily new incident cases", title =title, subtitle = "Daily new cases and model") +
->>>>>>> add1f7e3954b21954355d273a98c210168583bec
-  xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
+  labs(y = "Daily new incident cases", title =title, subtitle = "Daily new cases and model") +xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
          as.Date('2020-05-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
   scale_color_manual(values = c("Incident Cases"="blue", "Gompertz-function"="red"))+
   theme(legend.position = "top", legend.title = element_blank())
