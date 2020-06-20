@@ -11,4 +11,4 @@ I am physicist with a passion for analyzing an modeling data. Since I am not a m
 ### The outbreak in Europe
 
 * exponential growth [https://nikseldon.github.io/COVID-19-Analysis/](https://nikseldon.github.io/COVID-19-Analysis/)
-* logistic growth model [https://nikseldon.github.io/COVID-19-Analysis/docs/logistic_growth_model.html](https://nikseldon.github.io/COVID-19-Analysis/logistic_growth_model.html)
+* logistic growth model [https://nikseldon.github.io/COVID-19-Analysis/logistic_growth_model.html](https://nikseldon.github.io/COVID-19-Analysis/logistic_growth_model.html)
