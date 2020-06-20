@@ -130,7 +130,7 @@ summary(aFitGER)
 
 ### Prediction
 ```{r}
-times<-seq(0,90,1)
+times<-seq(0,120,1)
 predGER<-predict(aFitGER, list(t=times))
 predGER<-tibble(time=times, cumulative_cases=predGER)%>%
   mutate(date=time+ymd("2020-03-01"))%>%
@@ -146,7 +146,7 @@ p1<-ggplot()+
   geom_point(data=predGER, aes(x=date, y=cumulative_cases, color="Gompertz-function"), pch=3, cex=.5)+
   labs(y = "Cumulative confirmed cases", title =title, subtitle = "normal plot") +
   xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
-         as.Date('2020-05-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
+         as.Date('2020-06-08 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
   scale_color_manual(values = c("Cumulative Cases"="blue", "Gompertz-function"="red"))+
   theme(legend.position = "top", legend.title = element_blank())
 
@@ -156,7 +156,7 @@ p2<-ggplot()+
   labs(y = "Cumulative confirmed cases",title =" \n ", subtitle = "log-y plot") +
   scale_color_manual(values = c("Cumulative Cases"="blue", "Gompertz-function"="red"))+
   xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
-         as.Date('2020-05-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
+         as.Date('2020-06-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
   scale_y_log10(limits = c(100,6.5e5))+
   theme(legend.position = "top", legend.title = element_blank())
 
@@ -170,7 +170,7 @@ ggplot()+
   geom_col(data=dataGER, aes(x = Date, y = incident_cases, color="Incident Cases"), alpha=0.5)+
   geom_point(data=predGER, aes(x=date, y=incident_cases, color="Gompertz-function"), pch=3, cex=.5)+
   labs(y = "Daily new incident cases", title =title, subtitle = "Daily new cases and model") +xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
-         as.Date('2020-05-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
+         as.Date('2020-06-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
   scale_color_manual(values = c("Incident Cases"="blue", "Gompertz-function"="red"))+
   theme(legend.position = "top", legend.title = element_blank())
 ```
@@ -199,7 +199,7 @@ summary(aFitCH)
 ```
 
 ```{r echo=FALSE}
-times<-seq(0,90,1)
+times<-seq(0,120,1)
 predCH<-predict(aFitCH, list(t=times))
 predCH<-tibble(time=times, cumulative_cases=predCH)%>%
   mutate(date=time+ymd("2020-03-01"))%>%
@@ -214,7 +214,7 @@ p1<-ggplot()+
   geom_point(data=predCH, aes(x=date, y=cumulative_cases, color="Gompertz-function"), pch=3, cex=.5)+
   labs(y = "Cumulative confirmed cases", title =title, subtitle = "normal plot") +
   xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
-         as.Date('2020-05-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
+         as.Date('2020-06-09 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
   scale_color_manual(values = c("Cumulative Cases"="blue", "Gompertz-function"="red"))+
   theme(legend.position = "top", legend.title = element_blank())
 
@@ -224,7 +224,7 @@ p2<-ggplot()+
   labs(y = "Cumulative confirmed cases",title =" ", subtitle = "log-y plot") +
   scale_color_manual(values = c("Cumulative Cases"="blue", "Gompertz-function"="red"))+
   xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
-         as.Date('2020-05-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
+         as.Date('2020-06-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
   scale_y_log10(limits = c(10,6.5e4))+
   theme(legend.position = "top", legend.title = element_blank())
 
@@ -239,7 +239,7 @@ ggplot()+
   geom_point(data=predCH, aes(x=date, y=incident_cases, color="Gompertz-function"), pch=3, cex=.5)+
   labs(y = "Daily new incident cases", title =title, subtitle = "Daily new cases and model") +
   xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
-         as.Date('2020-05-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
+         as.Date('2020-06-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
   scale_color_manual(values = c("Incident Cases"="blue", "Gompertz-function"="red"))+
   theme(legend.position = "top", legend.title = element_blank())
 ```

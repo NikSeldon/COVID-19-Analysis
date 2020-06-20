@@ -76,12 +76,12 @@ confirmedCases_JHU <- read_csv(pathConfirmed)%>%
     arrange(country_region)
 
 confirmedCasesTmp<-as_tibble()    
-countries<-list("Italy", "Germany", "Switzerland", "Spain", "France", "Netherlands","Sweden","Austria", "Belgium" )
+countries<-list("Italy", "Germany", "Switzerland", "Spain", "France", "Netherlands","Sweden","Austria", "Belgium", "Singapore" )
 confirmedCasesSelected<-as_tibble()
 
 for(i in seq_along(countries)){
   confirmedCasesTmp<-confirmedCases_JHU%>%
-    filter(country_region == countries[i], province==countries[i] | is.na(province))%>%
+    filter(country_region == countries[i], is.na(province))%>%
     mutate(incident_cases = c(0, diff(cumulative_cases)))%>%
     mutate(logCases=log(cumulative_cases))%>%
     mutate(difflogCases=c(0,diff(logCases)))%>%
@@ -109,8 +109,8 @@ ggplot(confirmedCasesSelected, aes(x = Date, y = cumulative_cases, colour=countr
   labs(y = "Cumulative confirmed cases", title = title, 
        subtitle = "", caption = caption) +
   xlim(c(as.Date('2020-02-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
-         as.Date('2020-04-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
-  scale_y_log10(limits = c(1,1.25e5))+
+         as.Date('2020-06-30 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
+  scale_y_log10(limits = c(1,1.75e5))+
   theme(legend.position = "none", legend.title = element_blank())
 
 ```
@@ -130,7 +130,7 @@ ggplot(confirmedCasesSelected, aes(x = Date, y = incident_cases))+
   geom_col(color="blue", alpha=0.5)+
   #geom_line(color="blue",alpha=0.4, size=.3) + 
   #geom_point(color="blue", alpha=0.5, size=2)+
-  facet_wrap(country_region ~ ., scale = "free_y")+
+  facet_grid(country_region ~ ., scale = "free_y")+
   labs(y = "Daily incident confirmed cases", title = title, 
        subtitle = "(Note: different y-axis scales)", caption = caption)+
   theme(legend.position = "none", legend.title = element_blank())
@@ -156,12 +156,8 @@ ggplot(confirmedCasesSelected%>%filter(Date>="2020-03-17"), aes(x = Date, y = T2
   labs(y = "Cumulative confirmed cases", title = title, 
        subtitle = "", caption = caption) +
   xlim(c(as.Date('2020-03-15 00:00:00', format = "%Y-%m-%d %H:%M:%S"),
-         as.Date('2020-04-20 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
-<<<<<<< HEAD
-  ylim(c(0,30))+
-=======
-  ylim(c(0,20))+
->>>>>>> e652384f853ffec1a020b2e34c9f3f527d518515
+         as.Date('2020-06-30 00:00:00', format = "%Y-%m-%d %H:%M:%S")))+
+  ylim(c(0,90))+
   theme(legend.position = "none", legend.title = element_blank())
 ```
 
